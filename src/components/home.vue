@@ -1,18 +1,18 @@
 <template>
   <el-container class='home-container'>
 
-    <!-- 头部区域 -->
+  <!-- 头部区域 -->
   <el-header>
     <div>
       <img src="../assets/imgs/home.png" alt="header image">
       <span>书籍管理</span>
     </div>
-    <el-dropdown split-button type="primary" class="user-menu">
+    <el-dropdown split-button type="primary" class="user-menu" @command="handleCommand">
       我的账户
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item>个人中心</el-dropdown-item>
-        <el-dropdown-item>登录</el-dropdown-item>
-        <el-dropdown-item @click="logout()">退出</el-dropdown-item>
+        <el-dropdown-item command="user">个人中心</el-dropdown-item>
+        <el-dropdown-item command="login">登录</el-dropdown-item>
+        <el-dropdown-item command="logout">退出</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </el-header>
@@ -35,7 +35,7 @@
         >
 
         <!-- 一级菜单 我的书籍 部分 -->
-        <el-submenu index="/books">
+        <el-submenu index="/books" @open='refreshBooks'>
           <template slot="title">
               <i class="el-icon-notebook-1"></i>
               <span slot="title">我的书籍</span>
@@ -96,15 +96,34 @@ export default {
     // 获取所有的菜单
     async getAddressList () {
       // 解构，提取返回信息中的 body 部分
-      const { data: res } = await this.$http.get('address/8')
-      console.log('print res')
+      const id = window.sessionStorage.getItem('id')
+      const { data: res } = await this.$http.get(`address/all/${id}`)
       console.log(res)
       this.addressList = res
+    },
+
+    refreshBooks () {
+      this.getAddressList()
     },
 
     // 点击按钮，实现侧边菜单的折叠和展开
     toggleCollapse () {
       this.isCollapse = !this.isCollapse
+    },
+
+    // 下拉菜单控制
+    handleCommand (command) {
+      switch (command) {
+        case 'logout': {
+          this.logout()
+          break
+        }
+        case 'user': {
+          this.$router.push('/user')
+          break
+        }
+      }
+      this.$message('click on item ' + command)
     }
   }
 }
