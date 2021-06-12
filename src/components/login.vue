@@ -33,15 +33,15 @@ export default {
     return {
       // 登录表单的数据绑定对象
       formLogin: {
-        username: 'zs',
-        password: 'zs123'
+        username: '',
+        password: ''
       },
       // 表单验证规则对象
       login_rules: {
         // 验证用户名是否合法
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+          { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
         ],
         // 验证密码是否合法
         password: [
@@ -57,14 +57,29 @@ export default {
       // 登陆前预验证
       this.$refs[formName].validate(async valid => {
         if (!valid) return
-        const { data: res } = await this.$http.post('login', this.formLogin)
-        if (res.meta.status !== 200) return this.$message.error('登录失败')
-        this.$message.success('登陆成功')
+        try {
+          const res = await this.$http.post('user/login', this.formLogin)
+
+          if (res.status !== 200) return this.$message.error('登录失败')
+          else {
+            this.$message.success('登陆成功')
+            const { data: { token, tokenHead, info: { userId, email, username } } } = res
+            console.log(res)
+            // 将token保存至 sessionStorage 中
+            window.sessionStorage.setItem('token', tokenHead + ' ' + token)
+            window.sessionStorage.setItem('id', userId)
+            window.sessionStorage.setItem('username', username)
+            window.sessionStorage.setItem('email', email)
+            // 跳转至主页
+            this.$router.push('/home')
+          }
+        } catch {
+          this.$message.error('登录失败')
+        }
       })
     },
 
     clear (formName) {
-      console.log(this.formLogin)
       this.$refs[formName].resetFields()
       this.$message({
         message: '已清空表单',

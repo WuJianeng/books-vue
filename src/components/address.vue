@@ -31,7 +31,7 @@ export default {
       addressList: [],
 
       addressInfo: {
-        user_id: 8,
+        userId: window.sessionStorage.getItem('id'),
         address: ''
       }
     }
@@ -43,13 +43,16 @@ export default {
 
   methods: {
     async getAddressList () {
-      const { data: res } = await this.$http.get('address/8')
+      const id = window.sessionStorage.getItem('id')
+      const request = `address/all/${id}`
+      console.log(request)
+      const { data: res } = await this.$http.get(request)
       this.addressList = res
     },
 
     async addAddress () {
       console.log(this.addressInfo)
-      const { data: res } = await this.$http.post('address/add', this.addressInfo)
+      const res = await this.$http.post('address/add', this.addressInfo)
       console.log(res)
       this.getAddressList()
     }
