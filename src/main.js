@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import './plugins/axios'
 import App from './App.vue'
-// import login from './components/login.vue'
 import router from './router'
 import './plugins/element.js'
 // 导入全局样式表

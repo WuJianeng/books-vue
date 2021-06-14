@@ -1,6 +1,5 @@
 <template>
     <div class='login_container'>
-        <div>login component</div>
         <div class="login_box">
             <!-- 头像区域 -->
             <div class='avatar_box'>

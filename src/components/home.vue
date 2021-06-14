@@ -40,7 +40,8 @@
               <i class="el-icon-notebook-1"></i>
               <span slot="title">我的书籍</span>
           </template>
-          <el-menu-item :index='"/books/" + item.id' v-for='item in addressList' :key='item.id'>
+          <el-menu-item :index='"/books/" + item.id' v-for='item in addressList' :key='item.id'
+          :route="{ path: '/books', query: { addressId: item.id, address: item.address } }">
             <template slot="title">
               <!-- 图标 -->
               <i class='el-icon-location'></i>
@@ -98,7 +99,7 @@ export default {
       // 解构，提取返回信息中的 body 部分
       const id = window.sessionStorage.getItem('id')
       const { data: res } = await this.$http.get(`address/all/${id}`)
-      console.log(res)
+      // console.log(res)
       this.addressList = res
     },
 

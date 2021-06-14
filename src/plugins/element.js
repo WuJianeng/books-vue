@@ -2,8 +2,10 @@ import Vue from 'vue'
 import {
   Button, Form, FormItem, Input, Message, Container, Header,
   Aside, Main, Menu, Submenu, MenuItem, MenuItemGroup, DropdownMenu,
-  DropdownItem, Dropdown, Breadcrumb, BreadcrumbItem, Card, Col, Row
+  DropdownItem, Dropdown, Breadcrumb, BreadcrumbItem, Card, Col, Row,
+  Table, TableColumn, Tooltip, Dialog, Select, Option, InputNumber
 } from 'element-ui'
+// import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.use(Button)
 Vue.use(Form)
@@ -25,5 +27,12 @@ Vue.use(BreadcrumbItem)
 Vue.use(Card)
 Vue.use(Row)
 Vue.use(Col)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(Tooltip)
+Vue.use(Dialog)
+Vue.use(Select)
+Vue.use(Option)
+Vue.use(InputNumber)
 
 Vue.prototype.$message = Message
