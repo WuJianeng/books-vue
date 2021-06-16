@@ -19,7 +19,7 @@
 
   <el-container>
     <!-- 侧边栏 -->
-    <el-aside :width="isCollapse? '64px': '200px'">
+    <el-aside :width="isCollapse? '8%': '15%'">
       <div class="toggle-button" @click='toggleCollapse'>|||</div>
 
       <!-- 侧边栏菜单区域 -->
@@ -35,7 +35,7 @@
         >
 
         <!-- 一级菜单 我的书籍 部分 -->
-        <el-submenu index="/books" @open='refreshBooks'>
+        <el-submenu index="/books" @open='refreshBooks' center>
           <template slot="title">
               <i class="el-icon-notebook-1"></i>
               <span slot="title">我的书籍</span>
@@ -73,7 +73,7 @@
     </el-aside>
 
     <!-- 右侧主体区域 -->
-    <el-main>
+    <el-main width="80%">
       <!-- 占位符，存放主页内容 -->
       <router-view></router-view>
     </el-main>

@@ -22,18 +22,26 @@
           <el-button type="primary" @click="handleAddNewBook">添加新书</el-button>
         </el-col>
       </el-row>
+      <el-button :disabled="selectedButtonIsDisabled" icon="el-icon-edit" type="primary"
+                 @click="editSelection">批量转移</el-button>
+      <el-button :disabled="selectedButtonIsDisabled" icon="el-icon-delete" type="danger"
+                 @click="deleteDialogIsVisible=true">批量删除</el-button>
 
       <!-- 书籍表格区域 -->
       <el-table :data="bookList"
         stripe
         style="width: 100%"
         border
-        highlight-current-row>
-        <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
-        <el-table-column prop="bookName" label="书名" min-width="150" align="center"></el-table-column>
-        <el-table-column prop="bookClass" label="类型" min-width="50" align="center"></el-table-column>
-        <el-table-column prop="readPage" label="已读页数" width="100" align="center"></el-table-column>
-        <el-table-column label="操作" width="150" align="center">
+        highlight-current-row
+        @selection-change="handleSelectionChange">
+        <el-table-column type="selection" min-width="5%"></el-table-column>
+        <el-table-column type="index" label="序号" min-width="10%" align="center"></el-table-column>
+        <el-table-column prop="bookName" label="书名" min-width="30%" align="center"></el-table-column>
+        <el-table-column prop="bookClass" label="类型" min-width="10%" align="center"
+          :filters="bookClassFilters"
+          :filter-method="filterClassTag"></el-table-column>
+        <el-table-column prop="readPage" label="已读页数" min-width="10%" align="center"></el-table-column>
+        <el-table-column label="操作" min-width="20%" align="center">
           <template v-slot="scope">
             <!-- 对话框用于编辑书籍 -->
             <el-tooltip content="编辑书籍" placement="top" :enterable="false">
@@ -57,7 +65,7 @@
 
     </el-card>
 
-    <!-- 弹出框 -->
+    <!-- 编辑单本书弹出框 -->
     <el-dialog title="编辑书籍" :visible.sync="editBookVisible" center>
       <el-form :model="editBook" :ref="editBook">
         <el-form-item label="书籍名" prop="bookName">
@@ -83,6 +91,14 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+
+    <el-dialog title="提示" :visible.sync="deleteDialogIsVisible" width="30%">
+      <span>确认删除选中书籍 ?</span>
+      <span slot="footer" class="dialog-footer" center>
+        <el-button type="primary" @click="deleteDialogIsVisible=false">取 消</el-button>
+        <el-button type="danger" @click="deleteSelection">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -94,6 +110,11 @@ export default {
       address: this.$route.query.address,
       searchInputText: '',
       bookList: [],
+      // 用于书籍分类的过滤
+      bookClassFilters: [],
+      // 多选
+      selectedBooks: [],
+      selectedButtonIsDisabled: true,
       bookParam: {
         userId: window.sessionStorage.getItem('id'),
         bookClassId: null,
@@ -101,6 +122,7 @@ export default {
         bookName: ''
       },
       editBookVisible: false,
+      deleteDialogIsVisible: false,
       editBook: {
         addressId: this.$route.query.addressId,
         bookName: '',
@@ -119,6 +141,10 @@ export default {
     }
   },
   methods: {
+    // 重新加载
+    reload () {
+      this.$forceUpdate()
+    },
     // 获取本地址下的所有书籍
     async getBooksList () {
       const data = await this.$http.post('/book/bookinfo/all', this.bookParam)
@@ -132,6 +158,14 @@ export default {
       const userId = sessionStorage.getItem('id')
       const { data } = await this.$http.get(`/book/class/all/${userId}`)
       this.bookClassList = data
+
+      // 更新分类过滤的标签
+      for (let i = 0; i < this.bookClassList.length; ++i) {
+        const className = this.bookClassList[i].className
+        this.bookClassFilters.push({ text: className, value: className })
+      }
+
+      console.log(this.bookClassFilters)
     },
     async addBook () {
       const res = await this.$http.post('book/book/add', this.editBook)
@@ -150,6 +184,38 @@ export default {
       if (res.status !== 200) {
         return this.$message.error('删除书籍失败')
       }
+    },
+    // 多选变化触发方法
+    handleSelectionChange (val) {
+      this.selectedBooks = val
+      this.selectedButtonIsDisabled = val.length === 0
+    },
+    // 编辑选中的行
+    editSelection () {
+      console.log(this.selectedBooks)
+    },
+    transferSelectedBooksToIds (books) {
+      const bookIds = []
+      for (let i = 0; i < books.length; ++i) {
+        const bookId = books[i].id
+        console.log(bookId)
+        bookIds.push(bookId)
+      }
+      return bookIds
+    },
+    // 删除选中的行
+    deleteSelection () {
+      const bookIds = this.transferSelectedBooksToIds(this.selectedBooks)
+      for (const id of bookIds) {
+        console.log(id)
+        this.deleteBook(id)
+      }
+      this.$message.success('批量删除成功')
+      this.reload()
+    },
+    // 标签筛选方法
+    filterClassTag (value, row) {
+      return row.bookClass === value
     },
     // 初始化编辑书籍信息的弹出框，初始值为该行书籍的默认值
     initEditBook (index) {
@@ -204,6 +270,7 @@ export default {
         this.addBook()
       }
       this.editBookVisible = false
+      this.reload()
     },
     handleReset () {
       this.$refs.editBook.resetFields()
@@ -217,6 +284,9 @@ export default {
         this.refreshAddress()
       }
     }
+  },
+  created () {
+    this.getBookClass()
   }
 }
 </script>

@@ -6,7 +6,8 @@
                 <img src="../assets/logo.png" alt='no img'>
             </div>
             <!-- 登录表单区域 -->
-            <el-form ref='loginFormRef' class='login_form' label-width="0px" :model='formLogin' :rules="login_rules">
+            <el-form ref='loginFormRef' class='login_form' label-width="0px"
+                     :model='formLogin' :rules="login_rules">
                 <!-- username -->
                 <el-form-item prop='username'>
                     <el-input prefix-icon="iconfont icon-user" v-model="formLogin.username"></el-input>
@@ -70,7 +71,7 @@ export default {
             window.sessionStorage.setItem('username', username)
             window.sessionStorage.setItem('email', email)
             // 跳转至主页
-            this.$router.push('/home')
+            await this.$router.push('/home')
           }
         } catch {
           this.$message.error('登录失败')
@@ -97,8 +98,10 @@ export default {
 }
 
 .login_box {
-    width: 450px;
-    height: 300px;
+    width: 400px;
+    height: 280px;
+    //width: 50%;
+    //height: 40%;
     background-color: #fff;
     border-radius: 3px;
     position: absolute;
@@ -107,8 +110,8 @@ export default {
     transform: translate(-50%, -50%);
 
     .avatar_box {
-        height: 130px;
-        width: 130px;
+        height: 100px;
+        width: 100px;
         border: 1px solid #eee;
         border-radius: 50%;
         padding: 10px;
