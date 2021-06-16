@@ -9,6 +9,8 @@ import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
 
 import axios from 'axios'
+import Qs from 'qs'
+
 axios.defaults.baseURL = 'http://localhost:8088'
 axios.interceptors.request.use(config => {
   // 配置请求头的 token
@@ -16,6 +18,7 @@ axios.interceptors.request.use(config => {
   return config
 })
 Vue.prototype.$http = axios
+Vue.prototype.qs = Qs
 
 Vue.config.productionTip = false
 

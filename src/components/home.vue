@@ -53,8 +53,14 @@
 
         <!-- 一级菜单 地址管理 -->
         <el-menu-item index="/address">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-location"></i>
           <span slot="title">地址管理</span>
+        </el-menu-item>
+
+        <!-- 一级菜单 书籍分类管理 -->
+        <el-menu-item index="/class">
+          <i class="el-icon-paperclip"></i>
+          <span slot="title">分类管理</span>
         </el-menu-item>
 
         <!-- 一级菜单 数据统计 -->

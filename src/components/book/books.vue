@@ -9,8 +9,8 @@
 
     <!-- 卡片视图区域 -->
     <el-card>
-      <el-row :gutter="10">
-        <el-col :span="10">
+      <el-row :gutter="20">
+        <el-col :span="7">
           <!-- 搜索与添加 -->
           <el-input placeholder="请输入内容" v-model="bookParam.bookName"
             class="input-with-select">
@@ -19,7 +19,7 @@
         </el-col>
         <el-col :span="6">
           <!-- 添加按钮 -->
-          <el-button type="primary" @click="addNewBook">添加新书</el-button>
+          <el-button type="primary" @click="handleAddNewBook">添加新书</el-button>
         </el-col>
       </el-row>
 
@@ -32,8 +32,8 @@
         <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
         <el-table-column prop="bookName" label="书名" min-width="150" align="center"></el-table-column>
         <el-table-column prop="bookClass" label="类型" min-width="50" align="center"></el-table-column>
-        <el-table-column prop="readPage" label="已读页数" min-width="80" align="center"></el-table-column>
-        <el-table-column label="操作" min-width="100" align="center">
+        <el-table-column prop="readPage" label="已读页数" width="100" align="center"></el-table-column>
+        <el-table-column label="操作" width="150" align="center">
           <template v-slot="scope">
             <!-- 对话框用于编辑书籍 -->
             <el-tooltip content="编辑书籍" placement="top" :enterable="false">
@@ -43,31 +43,7 @@
                   @click="handleEdit(scope.$index, scope.row)"
                   icon="el-icon-edit"></el-button>
             </el-tooltip>
-            <el-dialog title="编辑书籍" :visible.sync="editVisible" center>
-              <el-form :model="editBook" ref="editBook">
-                <el-form-item label="书籍名" prop="bookName">
-                  <el-input v-model="editBook.bookName"></el-input>
-                </el-form-item>
-                <el-form-item label="类型" prop="bookClassId">
-                  <el-select v-model="editBook.bookClassId" placeholder="请选择书籍类型">
-                    <el-option
-                      v-for='bookClass in bookClassList'
-                      :key="bookClass.id"
-                      :label="bookClass.className"
-                      :value="bookClass.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="已读页数" prop="readPage">
-                  <el-input-number v-model="editBook.readPage"></el-input-number>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" @click="submitEdit(editMenu.move)">{{ editMenu.text }}</el-button>
-                  <el-button @click="handleReset">重置</el-button>
-                  <el-button @click="editVisible = false">取消</el-button>
-                </el-form-item>
-              </el-form>
-            </el-dialog>
+
             <el-tooltip content="删除书籍" placement="top" :enterable="false">
             <el-button
               size="mini"
@@ -80,6 +56,33 @@
       </el-table>
 
     </el-card>
+
+    <!-- 弹出框 -->
+    <el-dialog title="编辑书籍" :visible.sync="editBookVisible" center>
+      <el-form :model="editBook" :ref="editBook">
+        <el-form-item label="书籍名" prop="bookName">
+          <el-input v-model="editBook.bookName"></el-input>
+        </el-form-item>
+        <el-form-item label="类型" prop="bookClassId">
+          <el-select v-model="editBook.bookClassId" placeholder="请选择书籍类型">
+            <el-option
+              v-for='bookClass in bookClassList'
+              :key="bookClass.id"
+              :label="bookClass.className"
+              :value="bookClass.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="已读页数" prop="readPage">
+          <el-input-number v-model="editBook.readPage"></el-input-number>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitEdit(editMenu.move)">{{ editMenu.text }}</el-button>
+          <el-button @click="handleReset">重置</el-button>
+          <el-button @click="editBookVisible = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -97,12 +100,16 @@ export default {
         addressId: this.$route.query.addressId,
         bookName: ''
       },
-      editVisible: false,
+      editBookVisible: false,
       editBook: {
+        addressId: this.$route.query.addressId,
         bookName: '',
         bookClassId: 0,
         bookClass: '',
-        readPage: 0
+        readPage: 0,
+        userId: window.sessionStorage.getItem('id'),
+        id: 0,
+        selectedIndex: 0
       },
       bookClassList: [],
       editMenu: {
@@ -121,16 +128,28 @@ export default {
       this.$message.success('更新书籍列表')
       this.bookList = data.data
     },
-    // 添加新书的触发方法
-    addNewBook () {
-      this.getBookClass()
-      this.setEditMenuStatus(false)
-      this.editVisible = true
-    },
     async getBookClass () {
       const userId = sessionStorage.getItem('id')
       const { data } = await this.$http.get(`/book/class/all/${userId}`)
       this.bookClassList = data
+    },
+    async addBook () {
+      const res = await this.$http.post('book/book/add', this.editBook)
+      if (res.status !== 200) {
+        return this.$message.error('添加书籍失败')
+      }
+    },
+    async updateBook (bookId) {
+      const res = await this.$http.post('book/book/update', this.editBook)
+      if (res.status !== 200) {
+        return this.$message.error('更新书籍信息失败')
+      }
+    },
+    async deleteBook (bookId) {
+      const res = await this.$http.post(`book/book/delete/${bookId}`)
+      if (res.status !== 200) {
+        return this.$message.error('删除书籍失败')
+      }
     },
     // 初始化编辑书籍信息的弹出框，初始值为该行书籍的默认值
     initEditBook (index) {
@@ -154,11 +173,20 @@ export default {
       this.getBookClass()
       this.initEditBook(index)
       this.setEditMenuStatus(true)
-      this.editVisible = true
+      this.editBook.id = row.id
+      this.editBook.selectedIndex = index
+      this.editBookVisible = true
+    },
+    // 添加新书的触发方法
+    handleAddNewBook () {
+      this.getBookClass()
+      this.setEditMenuStatus(false)
+      this.editBookVisible = true
     },
     // 删除按钮的触发方法
     handleDelete (index, row) {
       this.$message(`delete index: ${index} row: ${row}`)
+      this.deleteBook(row.id)
       this.bookList.splice(index, 1)
     },
     // URL 地址中地址参数发生变化时，调用本方法更新参数
@@ -171,10 +199,11 @@ export default {
     submitEdit () {
       if (this.editMenu.move === 'edit') {
         console.log('提交修改')
+        this.updateBook()
       } else {
-        console.log('提交添加')
+        this.addBook()
       }
-      console.log(this.editBook)
+      this.editBookVisible = false
     },
     handleReset () {
       this.$refs.editBook.resetFields()

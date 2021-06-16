@@ -13,8 +13,8 @@
             <el-button slot="append" icon="el-icon-search" @click="getAddressList"></el-button>
           </el-input>
         </el-col>
-        <el-col :span="3">
-          <el-button type="primary" @click="handleAdd">添加地址</el-button>
+        <el-col :span="2">
+          <el-button type="primary" @click="handleAdd" icon="el-icon-circle-plus-outline"></el-button>
         </el-col>
       </el-row>
       <el-table :data="addressList" stripe style="width: 50%" border >
@@ -60,6 +60,8 @@ export default {
         address: ''
       },
 
+      addressId: 0,
+
       addressInfo: {
         userId: window.sessionStorage.getItem('id'),
         address: ''
@@ -82,18 +84,26 @@ export default {
     async getAddressList () {
       const { data: res } = await this.$http.post('address/all', this.addressParam)
       this.addressList = res
-      console.log(this.addressList)
     },
 
     async addAddress () {
+      this.addressInfo.id = null
       await this.$http.post('address/add', this.addressInfo)
       await this.getAddressList()
     },
 
     async deleteAddress (addressId) {
-      const res = await this.$http.post(`address/delete/${addressId}`)
+      const res = await this.$http.post(`address/delete/${this.addressId}`)
       if (res.status !== 200) {
         return this.$message.error('地址删除失败')
+      }
+    },
+
+    async updateAddress () {
+      this.addressInfo.id = this.addressId
+      const res = await this.$http.post('address/update', this.addressInfo)
+      if (res.status !== 200) {
+        return this.$message.error('地址更新失败')
       }
     },
 
@@ -111,13 +121,16 @@ export default {
     submitEdit () {
       if (this.editMenu.move === 'edit') {
         console.log('提交修改')
+        this.updateAddress()
       } else {
         console.log('提交添加')
+        this.addAddress()
       }
-      console.log(this.editBook)
+      this.editVisible = false
     },
 
     handleEdit (index, row) {
+      this.addressId = row.id
       this.setEditMenuStatus(true)
       this.editVisible = true
     },
@@ -142,17 +155,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.el-breadcrumb {
-  margin-bottom: 15px;
-  font-size: 12px;
-}
 
-.el-card {
-  box-shadow: 0 1px 1px rgb(0, 0, 0, 0.15) !important;
-}
-
-.el-table {
-  text-align-all: center;
-  margin-top: 10px;
-}
 </style>

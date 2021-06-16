@@ -3,10 +3,11 @@ import VueRouter from 'vue-router'
 import login from '../components/login.vue'
 import home from '../components/home.vue'
 import welcome from '../components/welcome.vue'
-import books from '../components/books.vue'
-import address from '../components/address.vue'
-import report from '../components/report.vue'
+import books from '../components/book/books.vue'
+import address from '../components/book/address.vue'
+import report from '../components/report/report.vue'
 import user from '../components/user.vue'
+import bookClass from '../components/book/bookClass'
 
 Vue.use(VueRouter)
 
@@ -29,7 +30,8 @@ const routes = [
       { path: '/welcome', component: welcome },
       { path: '/books', component: books },
       { path: '/address', component: address },
-      { path: '/report', component: report }
+      { path: '/report', component: report },
+      { path: '/class', component: bookClass }
     ]
   },
   {
