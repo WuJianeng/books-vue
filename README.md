@@ -1,24 +1,83 @@
 # books-vue
 
-## Project setup
+## 项目介绍
+
+books-vue 使用 vue 开发，用于个人书籍的分类管理与维护。
+
+源于我求学、工作、回家时有不少书籍需要搬来搬去，而我记性不好，经常忘记哪些书在哪个地方。因此在学习 vue 的过程中，做了此系统，方便了解自己在各个地方有哪些书籍。
+
+## 启动项目
+
+首先你需要启动 [books](https://github.com/WuJianeng/books)_项目
+
+然后执行安装 npm，进入 project 的根目录，执行下面的命令
+
 ```
 npm install
-```
-
-### Compiles and hot-reloads for development
-```
 npm run serve
 ```
+## 项目功能展示
 
-### Compiles and minifies for production
-```
-npm run build
-```
+1. 登录功能
 
-### Lints and fixes files
-```
-npm run lint
-```
+   <img src=".\md_res\imgs\登录.png" style="zoom: 50%;" />
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+2. 项目主界面
+
+   ![](.\md_res\imgs\主界面.png)
+
+3. 我的书籍展开后的列表
+
+<img src=".\md_res\imgs\我的书籍展开后的列表.png" alt="我的书籍展开后的列表" style="zoom:50%;" />
+
+地址管理
+
+![地址管理](.\md_res\imgs\地址管理.png)
+
+分类管理
+
+<img src=".\md_res\imgs\分类管理.png" alt="分类管理" style="zoom: 50%;" />
+
+书籍详情
+
+<img src=".\md_res\imgs\书籍详情.png" alt="书籍详情" style="zoom:50%;" />
+
+书籍批量处理
+
+<img src=".\md_res\imgs\批量处理.png" alt="批量处理" style="zoom:50%;" />
+
+添加新书
+
+![添加新书](.\md_res\imgs\添加新书.png)
+
+搜索书籍
+
+![搜索书籍](.\md_res\imgs\搜索书籍.png)
+
+书籍编辑
+
+![书籍编辑](.\md_res\imgs\书籍编辑.png)
+
+修改书籍分类
+
+![修改书籍分类](.\md_res\imgs\修改书籍分类.png)
+
+修改已读页数
+
+![修改已读页数](.\md_res\imgs\修改已读页数.png)
+
+修改后的结果
+
+![修改后结果](.\md_res\imgs\修改后结果.png)
+
+书籍删除
+
+![书籍删除](.\md_res\imgs\书籍删除.png)
+
+添加书籍分类
+
+![添加书籍分类](.\md_res\imgs\添加书籍分类.png)
+
+添加地址
+
+![添加书籍地址](.\md_res\imgs\添加书籍地址.png)
