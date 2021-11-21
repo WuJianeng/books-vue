@@ -24,7 +24,7 @@ npm run serve
 
 2. 项目主界面
 
-   ![](.\md_res\imgs\主界面.png)
+   <img src=".\md_res\imgs\主界面.png" style="zoom: 50%;" />
 
 3. 我的书籍展开后的列表
 
@@ -32,7 +32,7 @@ npm run serve
 
 4. 地址管理
 
-![地址管理](.\md_res\imgs\地址管理.png)
+<img src=".\md_res\imgs\地址管理.png" style="zoom: 50%;" />
 
 5. 分类管理
 
@@ -79,3 +79,4 @@ npm run serve
 
 16. 添加地址
 <img src=".\md_res\imgs\添加书籍地址.png" alt="添加书籍地址" style="zoom:50%;" />
+
