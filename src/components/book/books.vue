@@ -23,7 +23,7 @@
         </el-col>
       </el-row>
       <el-button :disabled="selectedButtonIsDisabled" icon="el-icon-edit" type="primary"
-                 @click="editSelection">批量转移</el-button>
+                 @click="editSelection">批量编辑</el-button>
       <el-button :disabled="selectedButtonIsDisabled" icon="el-icon-delete" type="danger"
                  @click="deleteDialogIsVisible=true">批量删除</el-button>
 
@@ -37,11 +37,14 @@
         <el-table-column type="selection" min-width="5%"></el-table-column>
         <el-table-column type="index" label="序号" min-width="10%" align="center"></el-table-column>
         <el-table-column prop="bookName" label="书名" min-width="30%" align="center"></el-table-column>
+        <el-table-column prop="authorName" label="作者" min-width="10%" align="center"></el-table-column>
         <el-table-column prop="bookClass" label="类型" min-width="10%" align="center"
           :filters="bookClassFilters"
           :filter-method="filterClassTag"></el-table-column>
         <el-table-column prop="readPage" label="已读页数" min-width="10%" align="center"></el-table-column>
-        <el-table-column label="操作" min-width="20%" align="center">
+        <el-table-column prop="wholePage" label="总页数" min-width="10%" align="center"></el-table-column>
+        <el-table-column prop="comment" label="备注" min-width="10%" align="center"></el-table-column>
+        <el-table-column label="操作" min-width="10%" align="center">
           <template v-slot="scope">
             <!-- 对话框用于编辑书籍 -->
             <el-tooltip content="编辑书籍" placement="top" :enterable="false">
@@ -71,6 +74,9 @@
         <el-form-item label="书籍名" prop="bookName">
           <el-input v-model="editBook.bookName"></el-input>
         </el-form-item>
+        <el-form-item label="作者" prop="authorName">
+          <el-input v-model="editBook.authorName"></el-input>
+        </el-form-item>
         <el-form-item label="类型" prop="bookClassId">
           <el-select v-model="editBook.bookClassId" placeholder="请选择书籍类型">
             <el-option
@@ -83,6 +89,12 @@
         </el-form-item>
         <el-form-item label="已读页数" prop="readPage">
           <el-input-number v-model="editBook.readPage"></el-input-number>
+        </el-form-item>
+        <el-form-item label="总页数" prop="wholePage">
+          <el-input-number v-model="editBook.wholePage"></el-input-number>
+        </el-form-item>
+        <el-form-item label="备注" prop="comment">
+          <el-input v-model="editBook.comment"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitEdit(editMenu.move)">{{ editMenu.text }}</el-button>
@@ -99,10 +111,38 @@
         <el-button type="danger" @click="deleteSelection">确 定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="批量修改" :visible.sync="editBooksIsVisible" center>
+      <el-form>
+        <el-form-item label="类型" prop="bookClassId">
+          <el-select v-model="editBooks.addressId" placeholder="请选择书籍地址">
+            <el-option
+              v-for='address in addressList'
+              :key="address.id"
+              :label="address.address"
+              :value="address.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitEditBooks">修改</el-button>
+          <el-button @click="editBooksIsVisible = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog title="提示" :visible.sync="editBookDialogIsVisible" width="30%">
+      <span>确认转移选中书籍 ?</span>
+      <span slot="footer" class="dialog-footer" center>
+        <el-button type="primary" @click="editBookDialogIsVisible=false">取 消</el-button>
+        <el-button type="danger" @click="confirmEditBooks">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+
 export default {
   data () {
     return {
@@ -126,14 +166,25 @@ export default {
       editBook: {
         addressId: this.$route.query.addressId,
         bookName: '',
+        authorName: '',
         bookClassId: 0,
         bookClass: '',
         readPage: 0,
+        wholePage: 0,
+        comment: '',
         userId: window.sessionStorage.getItem('id'),
         id: 0,
         selectedIndex: 0
       },
+      editBooks: {
+        bookIds: [],
+        addressId: null,
+        userId: window.sessionStorage.getItem('id')
+      },
+      editBooksIsVisible: false,
+      editBookDialogIsVisible: false,
       bookClassList: [],
+      addressList: [],
       editMenu: {
         move: 'edit',
         text: '修改'
@@ -144,6 +195,7 @@ export default {
     // 重新加载
     reload () {
       this.$forceUpdate()
+      this.getBookList()
     },
     // 获取本地址下的所有书籍
     async getBooksList () {
@@ -179,11 +231,25 @@ export default {
         return this.$message.error('更新书籍信息失败')
       }
     },
+    async updateBooksAdress () {
+      const res = await this.$http.post('book/address/move', this.editBooks)
+      if (res.status !== 200) {
+        return this.$message.error('批量更新书籍信息失败')
+      }
+    },
     async deleteBook (bookId) {
       const res = await this.$http.post(`book/book/delete/${bookId}`)
       if (res.status !== 200) {
         return this.$message.error('删除书籍失败')
       }
+    },
+    // 获取用户所有的地址
+    async getAddressList () {
+      // 解构，提取返回信息中的 body 部分
+      const id = window.sessionStorage.getItem('id')
+      const { data: res } = await this.$http.get(`address/all/${id}`)
+      // console.log(res)
+      this.addressList = res
     },
     // 多选变化触发方法
     handleSelectionChange (val) {
@@ -192,7 +258,20 @@ export default {
     },
     // 编辑选中的行
     editSelection () {
-      console.log(this.selectedBooks)
+      this.editBooksIsVisible = true
+      this.getAddressList()
+      this.editBooks.bookIds = []
+    },
+    submitEditBooks () {
+      this.editBooksIsVisible = false
+      for (const book of this.selectedBooks) {
+        this.editBooks.bookIds.push(book.id)
+      }
+      this.editBookDialogIsVisible = true
+    },
+    confirmEditBooks () {
+      this.updateBooksAdress()
+      this.editBookDialogIsVisible = false
     },
     transferSelectedBooksToIds (books) {
       const bookIds = []
@@ -223,6 +302,9 @@ export default {
       this.editBook.bookClassId = this.bookList[index].bookClassId
       this.editBook.bookClass = this.bookList[index].bookClass
       this.editBook.readPage = this.bookList[index].readPage
+      this.editBook.wholePage = this.bookList[index].wholePage
+      this.editBook.authorName = this.bookList[index].authorName
+      this.editBook.comment = this.bookList[index].comment
     },
     // 设置弹出框中是修改还是添加书籍
     setEditMenuStatus (isEdit) {
